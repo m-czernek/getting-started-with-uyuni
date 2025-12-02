@@ -29,7 +29,7 @@ Server::
 The part of {lm} that contains a web interface, enables users to manage servers, packages, deploy new servers, and similar.
 
 Proxy::
-The part of a {lm} that enables users to scale {lm}. You can register managed servers to proxy servers, which in part communicate and synchronize content with a {lm} server.
+The part of a {lm} that enables users to deploy and use {lm} across large geographic area. You can register managed servers to proxy servers, which in part communicate and synchronize content with a {lm} server. This means that, for example, clients located in Asia can communicate with a proxy deployed in a geographically close region, instead of downloading content from the {lm} Server that is deployed in North America.
 
 Client::
 {lm} considers clients to be systems that it manages. Clients use the Salt footnote:[https://saltproject.io/] automation framework to establish bidirectional communication between a server (or proxy) and itself. This means that the server can issue commands to the clients, allowing you to for example install or remove packages from the web interface. Similarly, clients report data back to the server, for example what packages and its versions are installed.
