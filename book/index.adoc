@@ -42,6 +42,9 @@ include::ch01/s01.adoc[]
 include::ch01/s02.adoc[]
 include::ch01/s03.adoc[]
 
+include::ch02/s01.adoc[]
+include::ch02/s02.adoc[]
+
 
 // include::chapter-02-The-Rocket/content.adoc[]
 // include::chapter-03-How-Planet-Systems-Work/content.adoc[]

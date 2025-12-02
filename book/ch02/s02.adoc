@@ -1,0 +1,206 @@
+:imagesdir: images
+ifeval::["{docname}" == "index"]
+:imagesdir: ch01/images
+endif::[]
+
+== Synchronizing an openSUSE Leap 15.6 Repository
+
+{lm} comes with a number of predefined repositories and channels that targed openSUSE, AlmaLinux, CentOS, Debian, Ubuntu, and many other operating systems. See the documentation footnote:[https://www.uyuni-project.org/uyuni-docs/en/uyuni/client-configuration/registration-overview.html] for more information about synchronizing other repositories.
+
+To synchronize the openSUSE Leap 15.6 x86_64 repository, execute the following steps:
+
+. SSH into the {lm} instance, and enter the Server container:
++
+----
+# mgrctl term
+uyuni-server:/ #
+----
+
+. List the predefined channels for openSUSE Leap:
++
+[source,none]
+----
+uyuni-server:/ # spacewalk-common-channels -l | grep opensuse_leap
+ opensuse_leap15_6:   x86_64, aarch64
+ opensuse_leap15_6-backports-updates: x86_64, aarch64
+ opensuse_leap15_6-non-oss: x86_64, aarch64
+ opensuse_leap15_6-non-oss-updates: x86_64, aarch64
+ opensuse_leap15_6-sle-updates: x86_64, aarch64
+ opensuse_leap15_6-updates: x86_64, aarch64
+ opensuse_leap15_6-uyuni-client: x86_64, aarch64
+ opensuse_leap15_6-uyuni-client-devel: x86_64, aarch64
+----
+
+. Enable the `opensuse_leap15_6` base channel for the `x86_64` architecture:
++
+[source,none]
+----
+uyuni-server:/ # spacewalk-common-channels -a x86_64 opensuse_leap15_6
+SUSE Multi-Linux Manager username: admin <.>
+SUSE Multi-Linux Manager password: <.>
+----
+<.> Enter `admin` as username.
+<.> Enter password that you selected during installation.
+
+. {lm} starts downloading all packages in the defined channel. You can monitor the progress by watching the reposync log file:
++
+[source,none]
+----
+uyuni-server:/ # tail -f /var/log/rhn/reposync/opensuse_leap15_6-x86_64.log
+2025/12/02 10:38:17 +02:00 Command: ['/usr/bin/spacewalk-repo-sync', '--channel', 'opensuse_leap15_6-x86_64', '--type', 'yum', '--non-interactive']
+2025/12/02 10:38:17 +02:00 Sync of channel started.
+2025/12/02 10:38:35 +02:00 Repo URL: http://download.opensuse.org/distribution/leap/15.6/repo/oss/
+2025/12/02 10:38:35 +02:00     Packages in repo:             107253
+2025/12/02 10:39:04 +02:00     Packages already synced:      63528
+2025/12/02 10:39:04 +02:00     Packages to sync:             43725
+2025/12/02 10:39:06 +02:00     New packages to download:     43725
+2025/12/02 10:39:06 +02:00   Downloading packages:
+2025/12/02 10:39:06 +02:00 Downloading total 43725 files from 1 queues.
+2025/12/02 10:39:07 +02:00     1/43725 : 0ad-0.0.26-bp156.3.8.x86_64.rpm
+...output omitted...
+----
++
+[WARNING]
+====
+icon:warning[] *WARNING*
+{lm} mirrors the whole repository, which is over 43000 packages for the openSUSE Leap 15.6 x86_64 repository. This may take a while, depending on your internet connection. This may also require a lot of disk space. In the case of the openSUSE Leap repository, synchronizing the repository requires around 65GB disk space.
+====
+
+. While waiting for the reposync to finish, log in to the web UI to explore the newly defined channel and repository.
++
+--
+In the web UI, click *Software*, then *openSUSE Leap 15.6 (x86_64)*. You can see information about the newly created channel.
+
+.Empty openSUSE Leap Channel
+image::empty-channel.png[Empty Channel]
+
+The channel is empty while {lm} synchronizes the repository attached to the channel.
+--
+
+. In the web UI, click *Manage*, then *Repositories*, then *External - openSUSE Leap 15.6 (x86_64)*. You can see the information about the newly created repository.
++
+.openSUSE Leap Repository
+image::new-repository.png[openSUSE Leap repository]
+
+. Return to the command line log file. Wait for {lm} to finish the synchronization:
++
+[source,none]
+----
+...output omitted...
+2025/12/02 11:03:45 +02:00     43725/43725 : xonotic-data-0.8.6-bp156.1.8.noarch.rpm
+2025/12/02 11:03:45 +02:00 Importing packages started.
+2025/12/02 11:03:45 +02:00 
+2025/12/02 11:03:45 +02:00   Importing packages to DB:
+2025/12/02 11:03:46 +02:00   Package batch #1 of 2187 completed...
+...output omitted...
+2025/12/02 11:15:12 +02:00   Package batch #2157 of 2187 completed...
+2025/12/02 11:15:12 +02:00 Importing packages finished.
+2025/12/02 11:15:12 +02:00
+2025/12/02 11:15:12 +02:00   Linking packages to the channel.
+...output omitted...
+2025/12/02 11:16:23 +02:00     43725 packages linked
+2025/12/02 11:16:23 +02:00
+2025/12/02 11:16:23 +02:00   Patches in repo: 0.
+...output omitted...
+2025/12/02 11:18:49 +02:00 Sync completed.
+----
+
+. Attempt to create a bootstrap repository for the synchronized repository:
++
+[source, none]
+----
+uyuni-server:/ # mgr-create-bootstrap-repo
+1. openSUSE-Leap-15.6-x86_64-uyuni
+Enter a number of a product label: 1
+
+Creating bootstrap repo for openSUSE-Leap-15.6-x86_64-uyuni
+copy 'dmidecode-3.4-150400.16.8.1.x86_64'
+copy 'libunwind-1.5.0-4.5.1.x86_64'
+Directory walk started
+Directory walk done - 2 packages
+Temporary output repo path: /srv/www/htdocs/pub/repositories/opensuse/15/6/bootstrap.tmp/.repodata/
+Preparing sqlite DBs
+Pool started (with 5 workers)
+Pool finished
+ERROR: package 'venv-salt-minion' not found
+----
++
+This is a common problem when synchronizing repositories. {lm} requires the Salt package to bootstrap a new minion. However, openSUSE Leap repositories do not provide the required Salt package. To fix the issue, enable the Client Tools channel.
+
+. Enable the openSUSE Leap 15.6 Client Tools channel:
++
+[source, none]
+----
+uyuni-server:/ # spacewalk-common-channels -a x86_64 opensuse_leap15_6-uyuni-client
+SUSE Multi-Linux Manager username: admin
+SUSE Multi-Linux Manager password: 
+Base channel 'openSUSE Leap 15.6 (x86_64)' - exists
+----
+
+. Monitor the reposync logs, until the client tools repository finishes synchronization:
++
+[source, none]
+----
+uyuni-server:/ # tail -f /var/log/rhn/reposync/opensuse_leap15_6-uyuni-client-x86_64.log
+2025/12/02 12:13:34 +02:00 Command: ['/usr/bin/spacewalk-repo-sync', '--channel', 'opensuse_leap15_6-uyuni-client-x86_64', '--type', 'yum', '--non-interactive']
+2025/12/02 12:13:34 +02:00 Sync of channel started.
+2025/12/02 12:13:36 +02:00 Repo URL: https://download.opensuse.org/repositories/systemsmanagement:/Uyuni:/Stable:/openSUSE_Leap_15-Uyuni-Client-Tools/openSUSE_Leap_15.0/
+2025/12/02 12:13:36 +02:00     Packages in repo:               236
+...output omitted...
+2025/12/02 12:13:43 +02:00     134/134 : venv-salt-minion-3006.0-47.2.uyuni.x86_64.rpm <.>
+2025/12/02 12:13:44 +02:00 Importing packages started.
+...output omitted...
+----
+<.> This is the missing Salt package required for creating the bootstrap repository.
+
+. Create the bootstrap repository:
++
+[source, none]
+----
+uyuni-server:/ # mgr-create-bootstrap-repo
+1. openSUSE-Leap-15.6-x86_64-uyuni
+Enter a number of a product label: 1
+
+Creating bootstrap repo for openSUSE-Leap-15.6-x86_64-uyuni
+copy 'venv-salt-minion-3006.0-47.2.uyuni.x86_64'
+copy 'dmidecode-3.4-150400.16.8.1.x86_64'
+copy 'libunwind-1.5.0-4.5.1.x86_64'
+Directory walk started
+Directory walk done - 3 packages
+Temporary output repo path: /srv/www/htdocs/pub/repositories/opensuse/15/6/bootstrap.tmp/.repodata/
+Preparing sqlite DBs
+Pool started (with 5 workers)
+Pool finished
+----
++
+{lm} now successfully creates the bootstrap repository.
+
+. Verify the content of the bootstrap repository:
++
+[source, none]
+----
+uyuni-server:/ # ls -Rl /srv/www/htdocs/pub/repositories/opensuse/15/6/bootstrap/
+/srv/www/htdocs/pub/repositories/opensuse/15/6/bootstrap/:
+total 4
+drwxr-xr-x. 1 root root 992 Dec  2 12:16 repodata
+-rw-r--r--. 1 root root 119 Dec  2 12:16 venv-enabled-x86_64.txt
+drwxr-xr-x. 1 root root 230 Dec  2 12:16 x86_64
+
+/srv/www/htdocs/pub/repositories/opensuse/15/6/bootstrap/repodata:
+total 152
+-rw-r--r--. 1 root root  5086 Dec  2 12:16 1f48fe9789ed7062e4ed966df4d4e96f8394e32ab8217cc8c81705dd90f04ac6-other.xml.gz
+-rw-r--r--. 1 root root  6077 Dec  2 12:16 3763999103842e86a1a7f3137b0ede85410f2eb1863932261c139776765e1edd-other.sqlite.bz2
+-rw-r--r--. 1 root root  2368 Dec  2 12:16 6990ab1207e9d0785a3a3390d189c40a3b02a6daf887de4d2efefcc98b81c65d-primary.xml.gz
+-rw-r--r--. 1 root root  5639 Dec  2 12:16 70bf13ed527144b5eb5669e9e271a34cc1e7e8e5e82a843369d6776775137ab9-primary.sqlite.bz2
+-rw-r--r--. 1 root root 55127 Dec  2 12:16 88f1a65953bb014e16d34091fe275bfe10d62bd943450dcb1d9619e216aac95f-filelists.sqlite.bz2
+-rw-r--r--. 1 root root 65461 Dec  2 12:16 bfc5795d5ed34f401fa4e0d821a9233534bccce82a88c8302d25806aed65e0be-filelists.xml.gz
+-rw-r--r--. 1 root root  3084 Dec  2 12:16 repomd.xml
+
+/srv/www/htdocs/pub/repositories/opensuse/15/6/bootstrap/x86_64:
+total 33424
+-rw-r--r--. 1 root root    91092 Dec  2 10:43 dmidecode-3.4-150400.16.8.1.x86_64.rpm
+-rw-r--r--. 1 root root    62236 Dec  2 10:51 libunwind-1.5.0-4.5.1.x86_64.rpm
+-rw-r--r--. 1 root root 34063668 Nov  4 08:30 venv-salt-minion-3006.0-47.2.uyuni.x86_64.rpm
+----
++
+This is a standard RPM repository with the `dmidecode`, `libunwind`, and `venv-salt-minion-3006.0` RPM packages.
