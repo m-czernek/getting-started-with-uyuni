@@ -1,0 +1,67 @@
+:imagesdir: images
+ifeval::["{docname}" == "index"]
+:imagesdir: ch03/images
+endif::[]
+
+== EXERCISE: Creating a CLM Project
+
+.Prerequisites
+This exercise assumes that you have a running Uyuni instance with a sychronized repository.
+
+To create a CLM project, execute the following steps:
+
+. In the web UI, click *Content Lifecycle*. Then, click *Create Project*.
+
+. In the *Create a new Content Lifecycle Project* form, enter the following data:
++
+* *Name*: `opensuse-leap-15-6-base`
+* *Label*: `opensuse-leap-15-6-base`
++
+Then, click *Create*.
+
+. In the *Sources* section, click *Attach/Detach Sources*.
++
+In the *Sources* dialogue window, in the *New Base Channel* section, select `openSUSE Leap 15.6 (x86_64)`. Then, click *Save*.
+
+. Create a sequence of `qa` and `prod` environments.
+
+.. In the *Environment Lifecycle* section, click *Add Environment*, and enter the following data:
++
+* *Name*: `qa`
+* *Label*: `qa`
++
+Then, click *Save*.
+
+.. In the *Environment Lifecycle* section, click *Add Environment*, and enter the following data:
++
+* *Name*: `prod`
+* *Label*: `prod`
++
+Then, click *Save*.
+
+. Click *Build (1)* to build the CLM project. In the confirmation dialogue, click *Build*.
++
+Then, wait for Uyuni to finish building the `qa` environment.
++
+.A Built CLM Project
+image::clm-1.png[Built CLM project]
+
+. Click *Software* to view available channels. Verify that the newly created `opensuse-leap-15-6-base-qa-openSUSE Leap 15.6 (x86_64)` channel contains the same packages as the base `openSUSE Leap 15.6 (x86_64)` channel:
++
+.List of Available Channels
+image::clm-2.png[Available channels]
+
+. Click *Content Lifecycle*, then *opensuse-leap-15-6-base* to return to the CLM project.
+
+. Click *Promote* to clone the content of the *qa* channel to the *prod* channel. Then, confirm the action by clicking *Promote environment*.
++
+Wait until the promote action finishes.
++
+.QA and Prod Environments
+image::clm-3.png[Promoted CLM project]
+
+. Click *Software* to verify that the Uyuni created the `opensuse-leap-15-6-base-prod-openSUSE Leap 15.6 (x86_64)` channel.
++
+.List of Available Channels
+image::clm-4.png[Available channels]
+

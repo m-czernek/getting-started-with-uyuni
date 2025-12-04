@@ -1,0 +1,8 @@
+== Overview
+
+In this chapter, you learned:
+
+* Assigning a client directly to a repository might not be suitable for certain workflows, for example when an application deployed on your client depends on a specific version of a package.
+* Content Lifecycle Management (CLM) enables you to control when to update packages for specific clients.
+* CLM enables you to create multiple sequential environments, such that you can for example test an update before you deploy it on production systems.
+* CLM creates new channels that you can assign to clients.

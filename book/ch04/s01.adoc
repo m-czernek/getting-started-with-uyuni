@@ -1,0 +1,44 @@
+= Content Lifecycle Management (CLM)
+
+Previous chapters discussed that {lm} synchronizes Linux operating system repositories, and serves them to registered clients. For example, you can configure your {lm} to synchronize Debian and Red Hat repositories. By default, {lm} periodically executes reposync to keep mirrored repositories up to date.
+
+In a previous chapter, we registered an openSUSE Leap 15.6 client, and assigned it the openSUSE Leap 15.6 x86_64 channel. This means that when the underlying repository content changes, this change is automatically propagated to our client, after {lm} executes reposync.
+
+However, a common problem is that {lm} users want control over what packages become available to what systems. Consider a situation a developer team in your organization uses a Red Hat client as a PostgreSQL database. When a new PostgreSQL version appears in the Red Hat repository, and is synchronized by {lm}, any person that can access the client as root may upgrade the package by using `dnf`.
+
+Consider a case where a repository removes support for a package, and removes such package. In such cases, when {lm} synchronizes the repository, it also deletes the package by default. This might lead to a downtime, if your production environment depends on a specific version of a package that is removed and you want to re-deploy your application environment.
+
+For some use cases, this workflow is acceptable. But, for production deployments, {lm} users might want greater control over what packages to provide to what clients.
+
+{lm} enables you granular control over what packages to add or remove to what environments with the _Content Lifecycle Management_ footnote:[https://www.uyuni-project.org/uyuni-docs/en/uyuni/administration/content-lifecycle.html] footnote:[https://www.uyuni-project.org/uyuni-docs/en/uyuni/common-workflows/workflow-content-lifecycle-management.html] functionality.
+
+== Understanding CLM in {lm}
+
+The following concepts enable you to manage CLM in {lm}:
+
+
+(CLM) Project::
+A CLM project defines a container for a set of environments, sources, filters, and similar. Every CLM concept is created within a CLM project.
+
+(CLM) Environment::
+--
+Each CLM environment represents a unique channel that you can assign to your clients. If you define multiple environments in a project, you can _promote_ packages in sequence from the first environment to the next.
+
+For example, if you create the `qa` and `prod` environments in this sequence, then you first add packages to the `qa` environment. After that, you can promote the packages from `qa` to the `prod` environment.
+
+Promoting environments within a project means cloning the content of one environment, such as `qa`, into another environment, such as `prod`.
+--
+
+(CLM) Source::
+Each project requires a source of packages that you can promote to the environments. Any channel can be a source for a CLM project. 
+
+(CLM) Filter::
+A filter removes, or filters, a specified set of packages from the source. This is useful for when the source channel is a large repository, for example the whole of SUSE Enterprise Linux 16, but a single application requires only a small subset of the packages, such as PostgreSQL and its dependencies.
+
+After you define a project and configure its contents, you must _build_ the project. Building a CLM project executes a number of actions, such as:
+
+* Create a channel for the first defined environment if it doesn't exist.
+* Filter packages from the sources based on the defined filters. 
+* Link packages defined by the sources to the channels.
+
+Rebuilding an already existing project is useful when you want to copy the filtered sources to the first defined environment, or when you modify the sources and filters in a project. 
