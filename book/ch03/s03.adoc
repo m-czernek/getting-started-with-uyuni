@@ -1,0 +1,56 @@
+== EXERCISE: Remotely Installing a Package on a Client
+
+One of the simplest yet powerful ways that {lm} manages the clients is managing the packages installed on the client. This exercise guides you to install the `tree` package on the registered `leap-client` client.
+
+.Prerequisites
+
+* An Uyuni instance with a registered client.
+* A synchronized repository.
+* A channel assigned to the registered client that links to the content of the synchronized repository.
+
+To install the `tree` package, execute the following steps:
+
+. On the `leap-client` client, verify that the `tree` command is not available:
++
+[source,none]
+----
+leap-client:~ # tree
+If 'tree' is not a typo you can use command-not-found to lookup the package that contains it, like this:
+    cnf tree
+----
+
+. In the Uyuni web UI, click *Systems*, *System List*, then *leap-client.tf.local*.
++
+In the client information pane, click *Software*, then *Install*.
+
+. In the filter box, type *tree-1*, and click the filter button.
++
+.Software Selection List
+image::install-1.png[Listing packages to install]
+
+. Check the check box next to the `tree` package. In this case, it is the `tree-1.7.0-1.30` package.
++
+Click *Install Packages*, then click *Confirm*.
+
+. Uyuni schedules a new Salt event, which installs the selected package. Click the *scheduled* link in the `1 package install has been scheduled for leap-client.tf.local` confirmation message.
+
+. In the *Events* page for the client, you see a new *Package Install/Upgrade scheduled by admin* event.
+
+. Refresh the page until the event disappears from the *Pending* events. Then, click *History* to see the event successfully finished.
++
+.A List of Events
+image::install-2.png[Listing events]
+
+. Click the event to see the result of the Salt execution.
++
+.Installation Event Details
+image::install-3.png[Listing event details]
+
+. On the command line of the client, verify that `tree` is installed:
++
+[source,none]
+----
+leap-client:~ # tree --version
+tree v1.7.0 (c) 1996 - 2014 by Steve Baker, Thomas Moore, Francesc Rocher, Florian Sesser, Kyosuke Tokoro 
+----
+

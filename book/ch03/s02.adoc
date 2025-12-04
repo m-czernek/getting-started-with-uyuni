@@ -1,0 +1,123 @@
+:imagesdir: images
+ifeval::["{docname}" == "index"]
+:imagesdir: ch03/images
+endif::[]
+
+== EXERCISE: Registering a Client
+
+.Prerequisites
+
+To register a client to your {lm} instance, this book assumes you have access to an openSUSE Leap 15.6 instance. In this exercise, the instance hostname is `leap-client.tf.local`.
+
+The {lm} Server should have network access to the client instance, and both instances should resolve each other hostnames:
+
+. Use the `ping` utility to verify that {lm} Server can resolve the `leap-client.tf.local` hostname:
++
+[source,none]
+----
+uyuni:~ # ping -c1 leap-client.tf.local
+PING leap-client.tf.local (10.146.11.204) 56(84) bytes of data.
+64 bytes from leap-client.tf.local (10.146.11.204): icmp_seq=1 ttl=64 time=0.174 ms
+...output omitted...
+uyuni:~ # mgrctl term
+uyuni-server:/ # ping -c1 leap-client.tf.local
+PING leap-client.tf.local (10.146.11.204) 56(84) bytes of data.
+64 bytes from leap-client.tf.local (10.146.11.204): icmp_seq=1 ttl=63 time=0.218 ms
+----
+
+. Ensure that you can ssh from {lm} Server to the `leap-client.tf.local` client:
++
+[source,none]
+----
+uyuni-server:/ # ssh root@leap-client.tf.local
+The authenticity of host 'leap-client.tf.local (10.146.11.204)' can't be established.
+ED25519 key fingerprint is SHA256:lI0ggCgYxnZSKQm/2Or8PnjmVsp5Viw/EafjyuySamU.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'leap-client.tf.local' (ED25519) to the list of known hosts.
+(root@leap-client.tf.local) Password: 
+Have a lot of fun...
+leap-client:~ #
+----
+
+. Use the `ping` utility to verify that the `leap-client.tf.local` instance can resolve the {lm} hostname:
++
+[source,none]
+----
+leap-client:~ # ping -c1 uyuni.tf.local
+PING uyuni.tf.local (10.146.11.204) 56(84) bytes of data.
+64 bytes from uyuni.tf.local (10.146.11.204): icmp_seq=1 ttl=64 time=0.027 ms
+...output omitted...
+----
+
+To register a client to your {lm} instance, execute the following steps:
+
+. In the Uyuni web UI, click *Systems*, *Activation Keys*, then *Create Key*. 
+
+. Enter the following data into the activation key creation form:
++
+* *Description*: `AK to onboard openSUSE Leap 15.6 x86_64 clients`
+* *Key*: `leap-15-6`
+* *Base Channel*: `openSUSE Leap 15.6 (x86_64)`
++
+Leave the default data for the rest of the form, and click *Create Activation Key*.
+
+. In the Uyuni web UI, click *Systems*, then *Bootstrapping*. Enter the following data:
++
+* *Host*: `leap-client.tf.local`
+* *Password*: Enter password used to authenticate as the `root` user.
+* *Activation Key*: `1-leap-15-6`
++
+Then, click *Bootstrap*.
+
+. Wait for the `Bootstrap process initiated` message to appear.
++
+.Bootstrapping a Client
+image::bootstrap-1.png[Bootstrapping a client]
+
+. Click the *systems* link in the message to view all registered systems. Your Uyuni deployment now contains a new system:
++
+.List of Clients
+image::bootstrap-2.png[Bootstrapping a client]
+
+. Click the *leap-client.tf.local* client and verify that it is subscribed to the openSUSE Leap channel:
++
+.Client Information
+image::bootstrap-3.png[Listing information about a client]
+
+. Click *Salt* to verify successful Salt registration:
++
+.A List of Accepted Salt Keys 
+image::bootstrap-4.png[Listing accepted Salt keys]
+
+. On the Uyuni command line, verify the accepted Salt keys:
++
+[source,none]
+----
+uyuni-server:/ # salt-key
+Accepted Keys:
+leap-client.tf.local
+Denied Keys:
+Unaccepted Keys:
+Rejected Keys:
+----
++
+[WARNING]
+====
+icon:warning[] *WARNING*
+You must execute this command from inside of the Server container, as suggested by the `uyuni-server` hostname. If your SSH session is outside of the container, execute `mgrctl term` to enter the container.
+====
+
+. On the `leap-client.tf.local` client command line, verify that Salt Bundle is installed, and is running:
++
+[source,none]
+----
+leap-client:~ # rpm -qa venv-salt-minion
+venv-salt-minion-3006.0-47.2.uyuni.x86_64
+leap-client:~ # systemctl status venv-salt-minion.service
+● venv-salt-minion.service - The venvjailed Salt Minion
+     Loaded: loaded (/usr/lib/systemd/system/venv-salt-minion.service; enabled; preset: disabled)
+     Active: active (running) since Thu 2025-12-04 10:06:11 CET; 18min ago
+...output omitted...
+----
+
