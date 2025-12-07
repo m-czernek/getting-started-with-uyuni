@@ -6,8 +6,10 @@ endif::[]
 == EXERCISE: Registering a Client
 
 .Prerequisites
-
-To register a client to your {lm} instance, this book assumes you have access to an openSUSE Leap 15.6 instance. In this exercise, the instance hostname is `leap-client.tf.local`.
+* An Uyuni instance.
+* An openSUSE Leap 15.6 instance.
++
+In this exercise, the instance hostname is `leap-client.tf.local`.
 
 The {lm} Server should have network access to the client instance, and both instances should resolve each other hostnames:
 

@@ -6,7 +6,7 @@ endif::[]
 == EXERCISE: Creating and Executing Custom Salt States
 
 .Prerequisites
-This exercise assumes that you have a running Uyuni instance with a registered client.
+* An Uyuni instance with a registered client.
 
 To create and execute custom Salt states on a {lm} client, execute the following steps:
 
