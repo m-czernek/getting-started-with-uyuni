@@ -5,7 +5,7 @@ endif::[]
 
 = Understanding Uyuni and {mlm}
 
-Uyuni footnote:[https://www.uyuni-project.org/] is an open-source project footnote:[github.com/uyuni-project/uyuni/] that helps organizations with deployment, lifecycle management, and software management for their Linux systems. Specifically, Uyuni simplifies the following tasks:
+Uyuni footnote:[https://www.uyuni-project.org/] is an open-source project footnote:[https://github.com/uyuni-project/uyuni/] that helps organizations with deployment, lifecycle management, and software management for their Linux systems. Specifically, Uyuni simplifies the following tasks:
 
 * Managing various Linux systems from one centralized place, for example managing SUSE, openSUSE, Red Hat, Debian, and Ubuntu systems.
 * Deployment of new Linux systems.
