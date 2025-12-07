@@ -4,7 +4,7 @@
 :creator: {author}
 :copyright: 2025 Marek Czernek
 :email: marek.czernek@suse.com
-:revnumber: v0.0.1
+:revnumber: v1.0.0
 :revdate: 01.12.2025
 :doctype: book
 :leveloffset: +1
@@ -32,9 +32,7 @@
 :lm: Linux Manager
 
 
-// include::preface.adoc[]
-
-// include::foreword.adoc[]
+include::foreword.adoc[]
 
 include::ch01/s01.adoc[]
 include::ch01/s02.adoc[]
