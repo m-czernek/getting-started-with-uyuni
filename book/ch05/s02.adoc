@@ -1,0 +1,120 @@
+:imagesdir: images
+ifeval::["{docname}" == "index"]
+:imagesdir: ch05/images
+endif::[]
+
+== EXERCISE: Creating and Executing Custom Salt States
+
+.Prerequisites
+This exercise assumes that you have a running Uyuni instance with a registered client.
+
+To create and execute custom Salt states on a {lm} client, execute the following steps:
+
+. In the Uyuni web UI, click *Configuration*, then *Channels*. Then, click *Create State Channel*.
+
+. In the *New Config State Channel* window, enter the following data:
++
+* *Name*: `test-state-channel`
+* *Label*: `test-state-channel`
+* *Description*: `A state channel for custom Salt states.`
+* *SLS Contents*: Enter the following SLS:
++
+[source,yaml]
+----
+install_httpd:
+  pkg.installed:
+    - name: apache2
+
+deploy_index_html:
+  file.managed:
+    - name: /srv/www/htdocs/index.html
+    - source: salt://manager_org_1/test-state-channel/index.html
+    - user: root
+    - group: root
+    - mode: '0644'
+
+start_httpd_service:
+  service.running:
+    - name: apache2
+    - enable: True
+----
++
+[WARNING]
+====
+icon:warning[] *WARNING*
+If you used a client with OS different than openSUSE Leap, you might need to adjust the preceding Salt state file, for example the default `index.html` directory, or name of the systemd service.
+====
++
+Then, click *Create Config State Channel*.
+
+. To upload the `salt://manager_org_1/test-state-channel/index.html` file, click *Add Files*, then click *Create File*.
+
+. In the *Create Configuration File* window, enter the following data:
++
+* *Filename/Path*: `/index.html`
+* *File Contents*: Enter the following HTML:
++
+[source,html]
+----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+</head>
+<body>
+    <h1>Hello, Salty world</h1>
+</body>
+</html>
+----
++
+Then, click *Create Configuration File*.
+
+. On the command line, create an SSH session to your Uyuni instance, and execute `mgrctl term` to enter the Server container session:
++
+[source,none]
+----
+uyuni:~ # mgrctl term
+uyuni-server:/ #
+----
+
+. Create the `/srv/salt/top.sls` file with the following content:
++
+[source,yaml]
+----
+base:
+  'leap-client.tf.local':
+    - manager_org_1.test-state-channel
+----
+
+. In the web UI, click *Systems*, then click *leap-client.tf.local*.
+
+. In the system details window, click *States*, then click *Apply Highstate*.
++
+.Applying Highstate to a Client
+image::salt-2.png[Applying highstate to a client]
+
+. Click *Events*, then click *History* and refresh the page until `Apply highstate scheduled by admin` appears.
+
+. Click the `Apply highstate scheduled by admin` event and see the result of your custom Salt state execution:
++
+.Custom Salt State Execution Result
+image::salt-3.png[Custom Salt state execution result]
+
+. Open an SSH session to the `leap-client.tf.local` client and verify that the web server is serving the `index.html` file:
++
+[source,html]
+----
+leap-client:~ # curl localhost
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+</head>
+<body>
+    <h1>Hello, Salty world</h1>
+</body>
+</html>
+----
+
